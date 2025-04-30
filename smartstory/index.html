@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hoo Wrote This A.i.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+
+
+
+<!-- Owl Icon Button -->
+<div class="owl-icon" onclick="handleOwlClick()">
+    <span id="modeLabel">Click to turn on ☀️🦉 mode</span>
+  </div>
+
+  <!-- Google Translate Container (Now Visible) -->
+<div id="google_translate_element" ></div>
+
+
+
+ <!-- Top bar container -->
+<div class="top-bar" style="text-align: center;">
+  <h1>🦉 Hoo Wrote This A.i. 🦉</h1>
+  <p style="margin-top: 5px; font-size: 16px; color: #ccc; font-family: monospace;">
+    Linguistics Tool NLP AI
+  </p>
+</div>
+
+
+
+  
+
+  <p class="directions">
+    <u><strong>HOW TO USE </strong></u><br><strong>type/paste </strong>story into textbox,<br><strong>turn on mic</strong> and say story, <br><strong>drag&drop </strong>file(.txt,.docx) in textbox, <br> or <strong>upload</strong> file(.txt,.docx)<br><strong>PRESS</strong> Analyze button!
+    
+</p>
+
+
+  <!-- Upload & Mic Buttons -->
+<div class="upload-section">
+  <input type="file" id="fileInput" style="display:none" onchange="handleFileUpload()">
+    <button class="upload-btn" onclick="triggerFileInput()">Upload File(.txt, .docx only)</button>
+    <button class="mic-btn" onclick="toggleMic()">🎙️ Mic Off</button>
+  </div>
+  
+  <div id="dropzone" class="dropzone-wrapper">
+    <textarea id="storyInput" spellcheck="true" placeholder="Write/paste/drag&drop the story here..."></textarea>
+  </div>
+
+  
+  <div class="analyze-container">
+  <button class="analyze-btn" onclick="analyzeStory()">Analyze</button>
+</div>
+
+  <div id="results-container">
+
+    <div class="chart-tips">
+      <h3 style="color:#D27D2D; font-family: 'Courier New', monospace; margin-bottom: 0.75rem;">
+        🦉 Hoo, our friendly A.i. Owl, will read your story and analyze for the following: 
+        </h3>
+      <ol>
+        <li><strong>Total Words</strong></li>
+        <li><strong>Unique Words</strong></li>
+        <li><strong>Type Token Ratio</strong></li>
+        <li><strong>Morphemes</strong></li>
+        <li><strong>Main clauses</strong></li>
+        <li><strong>Subordinate clauses</strong></li>
+        <li><strong>Subordination Index</strong></li>
+        <li><strong>Cohesion </strong></li>
+        <li><strong>Verb Errors</strong></li>
+        <li><strong>Verb Errors Per Sentence Ratio</strong></li>
+        <li><strong>Word Choice Error Frequency</strong></li>
+      </ol>
+    </div>
+
+
+    <h2 class="results-title">🦉 Hoo's Analysis 🦉<br><br>Move cursor on any result to learn about it</h2>
+    <div id="results" class="results-grid">
+      
+      <!-- Total Words Count (already done previously) -->
+<!-- Total Words Count -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="totalWordsTitle"><strong>Total Words Count</strong></p>
+    <p class="result-value" id="totalWordsDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="wordChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Total number of words in the story.</span>
+</div>
+
+<!-- Unique Words Count -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="uniqueWordsTitle"><strong>Unique Words Count</strong></p>
+    <p class="result-value" id="uniqueWordsDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="uniqueChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Total number of distinct words used in the story.</span>
+</div>
+
+<!-- Type-Token Ratio -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="ttrTitle"><strong>Type-Token Ratio</strong></p>
+    <p class="result-value" id="ttrDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="ttrChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">A % that determines writing effectiveness (unique words / total words).</span>
+</div>
+
+<!-- Morphemes Count -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="morphemeTitle"><strong>Morphemes Count</strong></p>
+    <p class="result-value" id="morphemeDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="morphemeChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Morphemes are word parts: roots, prefixes, suffixes. 'Chased' = chase + ed.</span>
+</div>
+
+<!-- Main Clause Count -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="clauseTitle"><strong>Main Clause Count</strong></p>
+    <p class="result-value" id="clauseDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="clauseChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Main clauses have subject, verb, and complete thought.</span>
+</div>
+
+<!-- Subordinate Clause Count -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="subordinateClauseTitle"><strong>Subordinate Clause Count</strong></p>
+    <p class="result-value" id="subordinateClauseDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="subordinateClauseChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Subordinate clauses have subject and verb, but aren't complete.</span>
+</div>
+
+<!-- Subordination Index -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="synaticSubordinationIndexTitle"><strong>Subordination Index</strong></p>
+    <p class="result-value" id="subordinationIndexDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="synaticSubordinationIndexChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">A % that measures (subordinate / total clauses) to indicate sentence structure.</span>
+</div>
+
+<!-- Cohesion -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="cohesionTitle"><strong>Cohesion</strong></p>
+    <p class="result-value" id="cohesionDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="cohesionChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Measures connections using pronouns, transitions, and repetition.</span>
+</div>
+
+<!-- Verb Errors -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="verbErrorTitle"><strong>Verb Errors</strong></p>
+    <p class="result-value" id="verbErrorDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="verbErrorChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Tense (past, present, future) doesn't match the story's context.</span>
+</div>
+
+<!-- Verb Errors Per Sentence -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="verbErrorPerClauseTitle"><strong>Verb Error Per Sentence Ratio</strong></p>
+    <p class="result-value" id="verbErrorPerClauseDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="verbErrorsPerClauseChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Percentage of verb errors per sentence in the story.</span>
+</div>
+
+<!-- Word Choice Errors -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="wordChoiceErrorTitle"><strong>Word Choice Errors</strong></p>
+    <p class="result-value" id="wordChoiceDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="wordChoiceChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Wrong, misspelled, or inappropriate words found in the story.</span>
+</div>
+
+<!-- Word Choice Error Ratio -->
+<div class="tooltip-container">
+  <div class="result-card">
+    <p id="wordChoiceErrorsRatioTitle"><strong>Word Choice Error Frequency</strong></p>
+    <p class="result-value" id="wordChoiceErrorsRatioDisplay"></p>
+    <div class="chart-wrapper">
+      <canvas id="wordChoiceErrorsRatioChart"></canvas>
+    </div>
+  </div>
+  <span class="tooltip-text">Percentage of word choice errors compared to total words.</span>
+</div>
+
+
+
+    <div class="result-card" style="grid-column: span 2;">
+        <p><strong>Story Statistics</strong></p>
+        <div class="chart-wrapper">
+          <canvas id="combinedChart" width="600" height="300"></canvas>
+        </div>
+      </div>
+      
+      
+
+    </div>
+
+    <div id="clauseDebugLog"></div>
+
+      <div class="result-card">
+        <p id="verbErrorDisplay"><strong>Verb Errors</strong></p>
+        <ul id="verbErrorLog" class="result-value" style="color: #FF6347; font-family: monospace;"></ul>
+      </div>
+
+
+      <div class="result-card">
+        <p id="wordChoiceErrorDisplay"><strong>Word Choice Errors</strong></p>
+        <ul id="wordChoiceLog" class="result-value" style="color: #FF6347; font-family: monospace;"></ul>
+      </div>
+
+
+  </div>
+
+  <div class="download-btn-wrapper">
+    <button id="downloadBtn" class="download-btn" onclick="downloadPDF()">Download Results PDF</button>
+  </div>
+
+  <!-- Scroll to Top Button -->
+<div class="scroll-top-btn-wrapper">
+  <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()">⬆️ Scroll to Top</button>
+</div>
+  
+  
+
+  <!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/rita"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script src="
+https://cdn.jsdelivr.net/npm/compromise@14.14.4/builds/compromise.min.js
+"></script>
+<script src="
+https://cdn.jsdelivr.net/npm/typo-js@1.2.5/typo.min.js
+"></script>
+<script src="https://unpkg.com/compromise"></script><!-- ✅ KEEP this one -->
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
+<!-- Google Translate Widget -->
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js-stable-fix@0.10.2/dist/html2pdf.bundle.min.js"></script>
+
+
+<!-- Your Script (comes last) -->
+<script src="script.js"></script>
+
+
+  
+<footer style="text-align: center; color: #888; margin-top: 50px; font-size: 14px; font-family: monospace;">
+  Developed by Johnny Dyer — check out the LLM AI version:
+  <a href="https://sallmon-app-928240156660.us-west1.run.app/" target="_blank" style="color: #00BFFF; text-decoration: none;" 
+     onmouseover="this.style.textDecoration='underline'" 
+     onmouseout="this.style.textDecoration='none'">
+    Visit here
+  </a>
+</footer>
+
+
+</body>
+</html>
