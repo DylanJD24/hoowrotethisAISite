@@ -1,9 +1,33 @@
 function analyzeStory() {
-  
-    const input = document.getElementById('storyInput').value;
-    const doc = nlp(input);
-    const tokens = doc.terms().out('array');
-    const unique = [...new Set(tokens)];
+  const input = document.getElementById('storyInput').value;
+
+  // 🛠 Normalize en and em dashes to hyphen
+  const normalized = input.replace(/[\u2013\u2014]/g, '-');
+
+  // ✅ Match hyphenated words, contractions, and numbers as one unit
+  const rawTokens = normalized.match(/\b[\w'-]+\b/g) || [];
+
+  // 🧽 Filter out non-substantive tokens
+  const tokens = rawTokens.filter(token => /[a-zA-Z0-9]/.test(token));
+
+  // 📊 Build frequency map (lowercased for grouping)
+  const wordCounts = {};
+  tokens.forEach(token => {
+    const word = token.toLowerCase();
+    wordCounts[word] = (wordCounts[word] || 0) + 1;
+  });
+
+  const unique = [...new Set(tokens.map(t => t.toLowerCase()))];
+  const sorted = Object.entries(wordCounts).sort((a, b) => b[1] - a[1]);
+
+  // 🧾 Logs
+  console.log(`📄 Google-style Word Count: ${tokens.length}`);
+  console.log(`✅ Unique word count: ${unique.length}`);
+  console.log("🧾 Word Frequencies:");
+  sorted.forEach(([word, count]) => {
+    console.log(`- ${word} × ${count}`);
+  });
+
 
     const ttr = (unique.length / tokens.length).toFixed(2);
   
@@ -452,82 +476,94 @@ function toggleMic() {
   }
 }
 
-function analyzeMorpheme(text) {
-    const words = text.split(/\s+/);
-    let morphemeCount = 0;
-  
-    for (let word of words) {
-      word = word.toLowerCase().replace(/[^\w]/g, ''); // remove punctuation
-      if (!word) continue;
-  
-      if (doNotSplit.includes(word)) {
-        morphemeCount += 1;
-        continue;
-      }
-  
-      const morphemes = splitMorphemes(word);
-      morphemeCount += morphemes.length;
-    }
-  
-    document.getElementById("morphemeDisplay").textContent = morphemeCount;
-  
-    // ✅ Now draw the morpheme chart
-    return morphemeCount;
+const monoMorphemes = [
+  "little", "sorry", "over", "under", "fence", "book", "black", "old", "the"
+];
 
+const doNotSplit = [
+  "bruh", "rizz", "frfr", "bussin", "gyat", "lit", "mid", "yeet", "npc",
+  "drip", "sus", "tbh", "cheugy", "vibe", "goat", "cap", "finna", "gonna",
+  "wanna", "onfleek", "delulu", "mewing", "glazed", "skibidi"
+];
+
+function analyzeMorpheme(text) {
+  const words = text.split(/\s+/);
+  let morphemeCount = 0;
+
+  for (let word of words) {
+    const originalWord = word; // Save original for logging
+    word = word.toLowerCase().replace(/[^\w]/g, ''); // remove punctuation
+    if (!word) continue;
+
+    if (doNotSplit.includes(word) || monoMorphemes.includes(word)) {
+      console.log(`🔹 "${originalWord}" → [${word}] → 1 morpheme`);
+      morphemeCount += 1;
+      continue;
+    }
+
+    const morphemes = splitMorphemes(word);
+    console.log(`🔹 "${originalWord}" → [${morphemes.join(', ')}] → ${morphemes.length} morphemes`);
+    morphemeCount += morphemes.length;
   }
+
+  document.getElementById("morphemeDisplay").textContent = morphemeCount;
+  return morphemeCount;
+}
+
   
-  function splitMorphemes(word) {
-    const suffixes = ["ing", "ed", "s", "es", "ly", "ness", "ment", "ful", "less", "able", "er", "est", "ish", "y"];
-    const prefixes = ["un", "re", "dis", "mis", "pre", "non", "in", "im", "over", "under"];
-  
-    const prefixesFound = [];
-    const suffixesFound = [];
-  
-    let remaining = word;
-  
-    // ✅ Recursively extract all prefixes
-    let foundPrefix = true;
-    while (foundPrefix) {
-      foundPrefix = false;
-      for (let pre of prefixes) {
-        if (remaining.startsWith(pre) && remaining.length > pre.length + 2) {
-          prefixesFound.push(pre);
-          remaining = remaining.slice(pre.length);
-          foundPrefix = true;
-          break;
-        }
+function splitMorphemes(word) {
+  const suffixes = [
+    "lessness", "fulness", "ability", "ation",
+    "ment", "ness", "less", "able", "ful", "ing", "ish",
+    "ly", "ed", "es", "s", "y", "en"
+  ];   
+  const prefixes = ["un", "re", "dis", "mis", "pre", "non", "in", "im", "over", "under"];
+
+  const prefixesFound = [];
+  const suffixesFound = [];
+
+  let remaining = word;
+
+  // ✅ Recursively extract all prefixes
+  let foundPrefix = true;
+  while (foundPrefix) {
+    foundPrefix = false;
+    for (let pre of prefixes) {
+      if (remaining.startsWith(pre) && remaining.length > pre.length + 2) {
+        prefixesFound.push(pre);
+        remaining = remaining.slice(pre.length);
+        foundPrefix = true;
+        break;
       }
     }
-  
-    // ✅ Recursively extract all suffixes
-    let foundSuffix = true;
-    while (foundSuffix) {
-      foundSuffix = false;
-      for (let suf of suffixes) {
-        if (remaining.endsWith(suf) && remaining.length > suf.length + 1) {
-          suffixesFound.unshift("-" + suf);
-          remaining = remaining.slice(0, remaining.length - suf.length);
-          foundSuffix = true;
-          break;
-        }
+  }
+
+  // ✅ Recursively extract all suffixes
+  let foundSuffix = true;
+  while (foundSuffix) {
+    foundSuffix = false;
+    for (let suf of suffixes) {
+      if (remaining.endsWith(suf) && remaining.length > suf.length + 1) {
+        suffixesFound.unshift("-" + suf);
+        remaining = remaining.slice(0, remaining.length - suf.length);
+        foundSuffix = true;
+        break;
       }
     }
-  
-    // ✅ Combine in correct order
-    const morphemes = [...prefixesFound, remaining, ...suffixesFound];
-  
-    // ✅ Optional cap (prevent 10-morpheme skibidi inflation)
-    if (morphemes.length > 6) return [word];
-  
-    return morphemes;
   }
+
+  // ✅ Fallback check for extremely short/stemless roots
+  const rootValid = remaining.length > 1 && /^[a-z]{2,}$/.test(remaining);
+  if (!rootValid) return [word];  // Don't trust the split
+
+  // ✅ Combine
+  const morphemes = [...prefixesFound, remaining, ...suffixesFound];
+  if (morphemes.length > 6) return [word];  // safety net
+
+  return morphemes;
+}
+
   
-  
-  const doNotSplit = [
-    "bruh", "rizz", "frfr", "bussin", "gyat", "lit", "mid", "yeet", "npc",
-    "drip", "sus", "tbh", "cheugy", "vibe", "goat", "cap", "finna", "gonna",
-    "wanna", "onfleek", "delulu", "mewing", "glazed", "skibidi"
-  ];
   
   function drawMorphemeChart(totalMorphemes, totalWords) {
     const axisColor = '#D27D2D';
